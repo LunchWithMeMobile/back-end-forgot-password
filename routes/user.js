@@ -557,11 +557,79 @@ router.get('/active/:email', function(req, res) {
   })  
 
 });
+//chat
+router.get('/muserList',  passport.authenticate('jwt', { session: false }), (req, res, next) => {
+  User.find({_id:{$ne:req.user.id} })
+    .then(users => {
+      //users[0].password = ''
+      //console.log('a00');  
+      let response = {
+        success: true,
+        users: users
+      };
+      return res.json(response);
+    })
+    .catch(err => {
+      log.err('mongo', 'failed to get users', err.message || err);
+      return next(new Error('Failed to get users'));
+    });
+});
 
 
 
 //*********/Route to forgotpasswordEmailVerification**********
 router.post('/forgotpasswordEmailVerification',(req,res,next)=>{
+  User.find({email: req.body.email})
+    .then(users => {
+      if(users.length==0){
+        return res.status(400).json({'msg': 'user not found'});
+      } else {
+        var token  = crypto.randomBytes(4).toString('hex');;
+        /* var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        var charactersLength = characters.length;
+        for ( var i = 0; i < 16; i++ ) {
+          token += characters.charAt(Math.floor(Math.random() * charactersLength));
+        } */
+        console.log(req.body.email)
+        var newdata={
+          passwordResetToken: token
+        }
+        User.updateOne({email:req.body.email},newdata,{upsert: true}).then(doc=>{
+        })
+        emailhandler.mailhandlerpasswordresetMobile(req.body.email,token)
+        console.log("password forgot")
+        
+        return res.json({"msg": "Mail Sent"});
+      }
+    })
+    .catch(err => {
+      log.err('mongo', 'failed to get users', err.message || err);
+      return next(new Error('Failed to get users'));
+    });
+  
+})
+router.get('/verifiCode',function(req,res){
+  const token =req.body.token;
+  User.findOne({tokenforPasswordReset:token})
+  .then(result=>{
+      if(result===null){
+        res.json({error:'token not valid'});
+      }else{
+        res.json({message:"verified successfully"});
+      }
+
+
+
+
+
+  }).catch(err=>{
+    console.log(err);
+  })
+
+
+})
+
+/* router.post('/forgotpasswordEmailVerification',(req,res,next)=>{
   User.find({email: req.body.email})
     .then(users => {
       if(users.length==0){
@@ -607,7 +675,7 @@ router.post('/forgotpasswordEmailVerificationMobile',(req,res,next)=>{
       return next(new Error('Failed to get users'));
     });
   
-})
+}) */
 
 // ******Route to forgot password*****************
 router.post('/forgotPassword',(req, res, next) => {
@@ -818,7 +886,7 @@ router.get('/Mactive', function(req, res) {
 // })  
 
 });
-//for mobile chat
+/* //for mobile chat
 router.get('/MuserList',  passport.authenticate('jwt', { session: false }), (req, res, next) => {
   User.find({_id:{$ne:req.user.id} })
     .then(users => {
@@ -836,7 +904,7 @@ router.get('/MuserList',  passport.authenticate('jwt', { session: false }), (req
       log.err('mongo', 'failed to get users', err.message || err);
       return next(new Error('Failed to get users'));
     });
-});
+}); */
 
 
 module.exports = router;

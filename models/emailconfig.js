@@ -34,13 +34,32 @@ exports.mailhandlerpasswordreset =  (email,token) => {
   });
 };
 
-exports.mailhandlerpasswordresetMobile =  (email,token) => {
+/* exports.mailhandlerpasswordresetMobile =  (email,token) => {
   console.log("sending resetpassword email ............");
   var mailOptions = {
     from: "niroshanratnayake07@gmail.com",
     to: email,
     subject: "Password Reset",
     text: ' please visit -<a href="http://localhost:4200/forgotpassword?token=' + token + '">http://localhost:4200/forgotpassword?token=' + token + '</a>',
+   //html:'<h1> Hello  ' + username +',</h1><br> Reset your password by clicking on below button<br> <h1> <a href="http://localhost:4200/forgotpassword"> <button style="color:red ">Click hear to activate your Account</button> </a> </h1><br> Regards,<br>The Lunch With Me Team</br>'
+  };
+
+  transporter.sendMail(mailOptions, function(error, info) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log("send email - " + email);
+      console.log("Email sent: " + info.response);
+    }
+  });
+}; */
+exports.mailhandlerpasswordresetMobile =  (email,token) => {
+  console.log("sending resetpassword email ............");
+  var mailOptions = {
+    from: "niroshanratnayake07@gmail.com",
+    to: email,
+    subject: "Password Reset",
+    text:`please use the following cod eto reset your password. Code:${token}`,
    //html:'<h1> Hello  ' + username +',</h1><br> Reset your password by clicking on below button<br> <h1> <a href="http://localhost:4200/forgotpassword"> <button style="color:red ">Click hear to activate your Account</button> </a> </h1><br> Regards,<br>The Lunch With Me Team</br>'
   };
 
